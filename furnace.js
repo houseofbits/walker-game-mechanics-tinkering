@@ -7,6 +7,7 @@ class FuelType {
         calorificValueMJ,
         burnRate,
         ignitionTemp,
+        ignitionRamp,
         volatility,
         smokeFactor,
         ashFactor
@@ -15,6 +16,7 @@ class FuelType {
         this.calorificValueMJ = calorificValueMJ;
         this.burnRate = burnRate;
         this.ignitionTemp = ignitionTemp;
+        this.ignitionRamp = ignitionRamp ?? 80;
         this.volatility = volatility;
         this.smokeFactor = smokeFactor;
         this.ashFactor = ashFactor;
@@ -94,7 +96,7 @@ function updateFurnace(furnace, dt, time) {
 
         if (furnace.temperature >= fuel.ignitionTemp) {
             ignitionFactor = clamp(
-                (furnace.temperature - fuel.ignitionTemp) / 120,
+                (furnace.temperature - fuel.ignitionTemp) / fuel.ignitionRamp,
                 0.15,
                 1.0
             );
@@ -252,6 +254,7 @@ const coal = new FuelType({
     calorificValueMJ: 32,
     burnRate: 0.45,
     ignitionTemp: 180,
+    ignitionRamp: 20,
     volatility: 0.08,
     smokeFactor: 0.4,
     ashFactor: 0.5
