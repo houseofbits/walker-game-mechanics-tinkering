@@ -17,6 +17,11 @@ import FurnaceSim from "./components/FurnaceSim.vue";
 </script>
 
 <style>
+* {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 18px;
+  }
+
 body {
   margin: 0;
   padding: 0;
@@ -28,5 +33,6 @@ body {
   height: 100vh;
   overflow: hidden;
   background-color: rgb(117, 117, 117);
+  padding: 8px;
 }
 </style>
