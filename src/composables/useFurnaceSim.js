@@ -23,7 +23,7 @@ function clamp(v, min, max) {
  * @param {number}  ashFactor         - Fraction of burn rate that becomes ash residue.
  *                                      High ash clogs airflow (reduces oxygenEfficiency).
  * @param {number}  maxTemp           - Maximum combustion temperature (°C) this fuel can sustain.
- *                                      Heat output tapers linearly to 0 as furnace approaches this value,
+ *                                      At this temperature, cooling accelerates quadratically,
  *                                      creating a natural equilibrium — no hard clamp needed.
  *                                      Coal ≈ 1200, wood ≈ 600.
  */
@@ -80,6 +80,37 @@ function createFurnace(fuels = []) {
   });
 }
 
+/**
+ * Calculate effective cooling coefficient based on temperature relative to fuel max temperatures.
+ * Uses a quadratic curve to accelerate cooling as furnace approaches max temp.
+ *
+ * @param {number} furnaceTemp - Current furnace temperature (°C)
+ * @param {array} fuels - Array of fuel entries with type and mass
+ * @param {number} baseCoolingCoeff - Base cooling coefficient
+ * @returns {number} Effective cooling coefficient (base or higher if near/above fuel limits)
+ */
+function calculateEffectiveCoolingCoefficient(furnaceTemp, fuels, baseCoolingCoeff) {
+  let maxCoolingMultiplier = 1.0;
+
+  // Check each burning fuel type and calculate cooling based on its maxTemp
+  for (const fuelEntry of fuels) {
+    if (fuelEntry.mass <= 0) continue;
+
+    const fuel = fuelEntry.type;
+    const excessTemp = furnaceTemp - fuel.maxTemp;
+
+    // Only apply cooling boost if above maxTemp
+    if (excessTemp > 0) {
+      // Quadratic scaling: cooling multiplier = 1 + (excessTemp / range)^2
+      // Grows quadratically as we exceed the fuel's max temp
+      const range = 100; // °C range over which to scale (tunable)
+      const coolingMultiplier = 1 + Math.pow(excessTemp / range, 2);
+      maxCoolingMultiplier = Math.max(maxCoolingMultiplier, coolingMultiplier);
+    }
+  }
+
+  return baseCoolingCoeff * maxCoolingMultiplier;
+}
 
 /**
  * Advances the simulation by dt seconds.
@@ -110,9 +141,12 @@ function createFurnace(fuels = []) {
  *
  *   7. Temperature update (Euler step):
  *        ΔT = heatEnergy / thermalMass  −  (T − T_ambient) × coolingCoefficient × dt
- *      First term heats the furnace; second is Newton's law of cooling.
+ *      First term heats the furnace; second is Newton's law of cooling with variable coefficient.
  *
  *   8. Pressure builds above 100 °C and decays by 0.5% per tick.
+ *
+ *   9. Variable cooling: As furnace approaches each fuel's maxTemp, cooling accelerates
+ *      with a quadratic curve, causing temperature to stabilize around fuel limits.
  */
 function updateFurnace(furnace, dt, time) {
   let totalHeat = 0;
@@ -160,11 +194,17 @@ function updateFurnace(furnace, dt, time) {
 
   const heatEnergy = totalHeat + emberHeat;
 
-  // temperature update: heat gain vs Newton cooling
+  // temperature update: heat gain vs variable Newton cooling
   const safeThermalMass = Math.max(0.001, furnace.thermalMass);
+  const effectiveCoolingCoeff = calculateEffectiveCoolingCoefficient(
+    furnace.temperature,
+    furnace.fuels,
+    furnace.coolingCoefficient
+  );
+
   furnace.temperature +=
     heatEnergy / safeThermalMass -
-    Math.max(0, furnace.coolingCoefficient) * (furnace.temperature - furnace.ambientTemperature) * dt;
+    effectiveCoolingCoeff * (furnace.temperature - furnace.ambientTemperature) * dt;
 
   // pressure builds above 100 °C, decays naturally
   if (furnace.temperature > 100) {
