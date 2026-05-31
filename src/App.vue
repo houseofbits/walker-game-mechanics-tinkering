@@ -18,10 +18,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import FurnaceSim from "./components/FurnaceSim.vue";
+import Battery from "./components/Battery.vue";
 
 const GRID_SIZE = 400;
 const gridBlocks = ref([]);
-const gridComponents = [FurnaceSim];
+const gridComponents = [FurnaceSim, Battery];
 
 const calculateGridBlocks = () => {
   const cols = Math.ceil(window.innerWidth / GRID_SIZE);
@@ -64,15 +65,14 @@ body {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, 400px);
-  grid-template-rows: repeat(auto-fill, 400px);
+  grid-template-columns: repeat(auto-fill, 424px);
+  grid-template-rows: repeat(auto-fill, 424px);
   pointer-events: auto;
 }
 
 .grid-block {
   width: 424px;
   height: 424px;
-  padding: 12px;
   box-sizing: border-box;
   border-right: 2px dashed rgba(200, 200, 200, 0.5);
   border-bottom: 2px dashed rgba(200, 200, 200, 0.5);
@@ -92,5 +92,59 @@ body {
   flex-shrink: 0;
   border-bottom: 1px solid #005a9e;
   user-select: none;
+}
+
+.window-ui {
+  width: 400px;
+  height: 400px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.window-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  flex: 1;
+  overflow: hidden;
+}
+
+button {
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+button:hover {
+  background: #357abd;
+}
+
+button:active {
+  background: #2a5aa0;
+}
+
+button.btn-red {
+  background: #e74c3c;
+}
+
+button.btn-red:hover {
+  background: #c0392b;
+}
+
+button.btn-red:active {
+  background: #a93226;
 }
 </style>
