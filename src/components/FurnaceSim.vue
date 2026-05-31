@@ -66,53 +66,80 @@ const tempBarColor = computed(() => {
   const [r, g, b] = lerpColor(tempPct.value);
   return `rgb(${r}, ${g}, ${b})`;
 });
+
 </script>
 
 <template>
   <div class="ui">
-    <div class="furnace-ui">
-      <p>Smoke: {{ furnace.smokeOutput.toFixed(2) }}</p>
-      <p>{{ furnace.fuels.map((f) => f.type.name + ': ' + f.mass.toFixed(1)).join(', ') }}</p>
-    </div>
+    <div class="title-bar">Furnace (basic)</div>
+    <div class="content">
+      <div class="furnace-ui">
+        <p>Smoke: {{ furnace.smokeOutput.toFixed(2) }}</p>
+        <p>{{ furnace.fuels.map((f) => f.type.name + ': ' + f.mass.toFixed(1)).join(', ') }}</p>
+      </div>
 
-    <div class="temp-bar-wrap">
-      <div class="temp-bar-fill" :style="{ width: tempPct + '%', background: tempBarColor }" />
-      <span class="temp-label">{{ furnace.temperature.toFixed(0) }}°C</span>
-    </div>
+      <div class="temp-bar-wrap">
+        <div class="temp-bar-fill" :style="{ width: tempPct + '%', background: tempBarColor }" />
+        <span class="temp-label">{{ furnace.temperature.toFixed(0) }}°C</span>
+      </div>
 
-    <button @click="addFuel(wood, 10)">Add Wood</button>
-    <button @click="addFuel(coal, 10)">Add Coal</button>
-    <button @click="ignite()">Ignite</button>
+      <button @click="addFuel(wood, 10)">Add Wood</button>
+      <button @click="addFuel(coal, 10)">Add Coal</button>
+      <button class="btn-ignite" @click="ignite()">Ignite</button>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.ui {
+  width: 400px;
+  height: 400px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  flex: 1;
+  overflow: hidden;
+}
+
 .furnace-ui {
   background: #cacaca;
-  padding: 4px;
-  border-radius: 6px;
-  width: 400px;
+  padding: 12px;
+  border-radius: 8px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.furnace-ui p {
+  margin: 4px 0;
+  font-size: 14px;
 }
 
 .temp-bar-wrap {
-  padding: 4px;
   position: relative;
-  width: 400px;
+  width: 100%;
   height: 40px;
   background: #cacaca;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
-  margin: 8px 0;
+  flex-shrink: 0;
 }
 
 .temp-bar-fill {
   height: 100%;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: width 0.1s linear, background 0.1s linear;
-}
-
-button {
-  margin-right: 8px;
 }
 
 .temp-label {
@@ -124,5 +151,37 @@ button {
   color: #fff;
   mix-blend-mode: difference;
   pointer-events: none;
+}
+
+button {
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+button:hover {
+  background: #357abd;
+}
+
+button:active {
+  background: #2a5aa0;
+}
+
+button.btn-ignite {
+  background: #e74c3c;
+}
+
+button.btn-ignite:hover {
+  background: #c0392b;
+}
+
+button.btn-ignite:active {
+  background: #a93226;
 }
 </style>

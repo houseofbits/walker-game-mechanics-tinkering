@@ -1,18 +1,38 @@
 <template>
   <div class="stage">
-    <!-- <Furnace :x="300" :y="300" />
-
-    <Fuel :initial-x="100" :initial-y="100" src="./assets/coal.png" />
-    <Fuel :initial-x="200" :initial-y="200" src="./assets/wood.png" /> -->
-
-    <FurnaceSim />
+    <div class="grid-container">
+      <div 
+        v-for="(block, index) in gridBlocks" 
+        :key="index" 
+        class="grid-block"
+      >
+        <component 
+          v-if="gridComponents[index]" 
+          :is="gridComponents[index]"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
-import Fuel from "./components/Fuel.vue";
-import Furnace from "./components/Furnace.vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import FurnaceSim from "./components/FurnaceSim.vue";
+
+const GRID_SIZE = 400;
+const gridBlocks = ref([]);
+const gridComponents = [FurnaceSim];
+
+const calculateGridBlocks = () => {
+  const cols = Math.ceil(window.innerWidth / GRID_SIZE);
+  const rows = Math.ceil(window.innerHeight / GRID_SIZE);
+  gridBlocks.value = Array(cols * rows).fill(null);
+};
+
+onMounted(() => {
+  calculateGridBlocks();
+  window.addEventListener("resize", calculateGridBlocks);
+});
 
 </script>
 
@@ -26,6 +46,7 @@ body {
   margin: 0;
   padding: 0;
 }
+
 .stage {
   position: relative;
   margin: 0;
@@ -33,6 +54,43 @@ body {
   height: 100vh;
   overflow: hidden;
   background-color: rgb(117, 117, 117);
-  padding: 8px;
+  padding: 0;
+}
+
+.grid-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 400px);
+  grid-template-rows: repeat(auto-fill, 400px);
+  pointer-events: auto;
+}
+
+.grid-block {
+  width: 424px;
+  height: 424px;
+  padding: 12px;
+  box-sizing: border-box;
+  border-right: 2px dashed rgba(200, 200, 200, 0.5);
+  border-bottom: 2px dashed rgba(200, 200, 200, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Global title bar style for reuse */
+.title-bar {
+  background: linear-gradient(to right, #0078d4, #0078d4);
+  color: white;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #005a9e;
+  user-select: none;
 }
 </style>
