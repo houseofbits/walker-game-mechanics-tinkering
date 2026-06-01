@@ -35,12 +35,14 @@ import FurnaceSim from "./components/FurnaceSim.vue";
 import Battery from "./components/Battery.vue";
 import Lights from "./components/Lights.vue";
 import Hopper from "./components/Hopper.vue";
+import HopperMonitor from "./components/HopperMonitor.vue";
 
 const componentsList = {
   "Furnace": FurnaceSim,
   "Battery": Battery,
   "Lights": Lights,
   "Hopper": Hopper,
+  "HopperMonitor": HopperMonitor,
 };
 
 const componentNames = Object.keys(componentsList);
@@ -193,6 +195,7 @@ input {
   padding: 16px;
   flex: 1;
   overflow: hidden;
+  justify-content: space-between;
 }
 
 button {

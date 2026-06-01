@@ -19,9 +19,7 @@
           <input v-model="lightsState.state.name" type="text"  class="name-input"/>
           <span class="amps-unit">Name</span>
         </div>
-      </div>      
 
-      <div class="amps-control">
         <label>Amp Drain/min:</label>
         <div class="amps-input-wrapper">
           <input type="number" v-model.number="lightsState.state.ampsDrain"

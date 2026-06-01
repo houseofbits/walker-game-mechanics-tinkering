@@ -5,11 +5,13 @@
       <div class="title-bar-button" @click="emit('remove')">x</div>
     </div>
     <div class="window-content">
-      Capacity: {{ batteryState.state.capacity.toFixed(1) }} Ah
+      <div>
+        Capacity: {{ batteryState.state.capacity.toFixed(1) }} Ah
 
-      <div class="temp-bar-wrap">
-        <div class="temp-bar-fill" :style="{ width: percentage + '%', background: 'green' }" />
-        <span class="temp-label">{{ percentage.toFixed(0) }}% </span>
+        <div class="temp-bar-wrap">
+          <div class="temp-bar-fill" :style="{ width: percentage + '%', background: 'green' }" />
+          <span class="temp-label">{{ percentage.toFixed(0) }}% </span>
+        </div>
       </div>
 
       <button v-if="!batteryState.state.charging" class="btn-red" @click="charge()">Charge</button>
