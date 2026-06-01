@@ -1,10 +1,14 @@
 <template>
   <div class="window-ui">
-    <div class="title-bar">Furnace (basic)</div>
+    <div class="title-bar">Furnace
+
+      <!-- <div class="title-bar-button" @click="emit('remove')">x</div> -->
+    </div>
     <div class="window-content">
       <div class="furnace-ui">
+        <p>Thermal mass: {{ furnace.thermalMass.toFixed(2) }}</p>
         <p>Smoke: {{ furnace.smokeOutput.toFixed(2) }}</p>
-        <p>{{ furnace.fuels.map((f) => f.type.name + ': ' + f.mass.toFixed(1)).join(', ') }}</p>
+        <p>{{furnace.fuels.map((f) => f.type.name + ': ' + f.mass.toFixed(1)).join(', ')}}</p>
       </div>
 
       <div class="temp-bar-wrap">
@@ -22,6 +26,8 @@
 <script setup>
 import { computed } from "vue";
 import { useFurnaceSim, FuelType } from "@/composables/useFurnaceSim";
+
+const emit = defineEmits(['remove']);
 
 const coal = new FuelType({
   name: "Coal",
@@ -46,11 +52,9 @@ const wood = new FuelType({
   maxTemp: 600,
 });
 
-const { furnace, start, addFuel, ignite } =
-  useFurnaceSim([
-    { type: coal, mass: 0 },
-    { type: wood, mass: 0 },
-  ]);
+const { furnace, start, addFuel, ignite, setInitialFuelTypes } = useFurnaceSim();
+
+setInitialFuelTypes([coal, wood]);
 
 start();
 
@@ -61,11 +65,11 @@ const tempPct = computed(() =>
 
 // [pct, [r, g, b]] stops matching the temperature range
 const COLOR_STOPS = [
-  [0,   [17,  17,  17]],
-  [15,  [122, 21,  0]],
-  [28,  [255, 69,  0]],
-  [50,  [255, 21,  0]],
-  [85,  [255, 0,   170]],
+  [0, [17, 17, 17]],
+  [15, [122, 21, 0]],
+  [28, [255, 69, 0]],
+  [50, [255, 21, 0]],
+  [85, [255, 0, 170]],
   [100, [255, 136, 255]],
 ];
 
@@ -91,7 +95,6 @@ const tempBarColor = computed(() => {
 </script>
 
 <style scoped>
-
 .furnace-ui {
   background: #cacaca;
   padding: 12px;

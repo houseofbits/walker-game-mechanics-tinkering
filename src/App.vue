@@ -7,9 +7,23 @@
         class="grid-block"
       >
         <component 
-          v-if="gridComponents[index]" 
-          :is="gridComponents[index]"
+          v-if="getComponent(index)" 
+          :is="getComponent(index)"
+          @remove="remove(index)"
         />
+        <div v-else class="component-selector">
+          <label>Select Component:</label>
+          <select 
+            :value="gridComponentSelection[index] || ''"
+            @change="(e: any) => selectComponent(index, e.target.value)"
+            class="selector-dropdown"
+          >
+            <option value="">-- None --</option>
+            <option v-for="name in componentNames" :key="name" :value="name">
+              {{ name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -19,16 +33,45 @@
 import { ref, onMounted } from "vue";
 import FurnaceSim from "./components/FurnaceSim.vue";
 import Battery from "./components/Battery.vue";
+import Lights from "./components/Lights.vue";
+
+const componentsList = {
+  "Furnace": FurnaceSim,
+  "Battery": Battery,
+  "Lights": Lights,
+};
+
+const componentNames = Object.keys(componentsList);
 
 const GRID_SIZE = 400;
 const gridBlocks = ref([]);
-const gridComponents = [FurnaceSim, Battery];
+const gridComponentSelection = ref<(string | null)[]>([
+  "Furnace",
+  "Battery",
+]);
+
+function remove(index: number) {
+  gridComponentSelection.value[index] = null;
+}
 
 const calculateGridBlocks = () => {
   const cols = Math.ceil(window.innerWidth / GRID_SIZE);
   const rows = Math.ceil(window.innerHeight / GRID_SIZE);
-  gridBlocks.value = Array(cols * rows).fill(null);
+  const totalCells = cols * rows;
+  gridBlocks.value = Array(totalCells).fill(null);
 };
+
+function selectComponent(index: number, componentName: string) {
+  gridComponentSelection.value[index] = componentName;
+}
+
+function getComponent(index: number) {
+  const componentName = gridComponentSelection.value[index];
+  if (componentName && componentName in componentsList) {
+    return (componentsList as any)[componentName];
+  }
+  return null;
+}
 
 onMounted(() => {
   calculateGridBlocks();
@@ -86,12 +129,38 @@ body {
 .title-bar {
   background: linear-gradient(to right, #0078d4, #0078d4);
   color: white;
-  padding: 8px 16px;
+  padding: 8px 8px;
   font-weight: 600;
   font-size: 14px;
   flex-shrink: 0;
   border-bottom: 1px solid #005a9e;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-bar-button {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  color: white;
+  font-size: 22px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.title-bar-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.title-bar-button:active {
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .window-ui {
@@ -146,5 +215,44 @@ button.btn-red:hover {
 
 button.btn-red:active {
   background: #a93226;
+}
+
+.component-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.component-selector label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.selector-dropdown {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 2px solid #4a90e2;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.selector-dropdown:hover {
+  background: #f0f0f0;
+  border-color: #357abd;
+}
+
+.selector-dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 6px rgba(74, 144, 226, 0.5);
 }
 </style>

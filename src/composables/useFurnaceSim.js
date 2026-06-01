@@ -219,16 +219,15 @@ function updateFurnace(furnace, dt, time) {
   return furnace;
 }
 
+const furnace = createFurnace();
+const running = ref(false);
+let raf;
+let lastTime = performance.now();
+
 /* -----------------------------
    COMPOSABLE
 ------------------------------*/
-export function useFurnaceSim(initialFuels = []) {
-  const furnace = createFurnace(initialFuels);
-
-  const running = ref(false);
-  let raf;
-  let lastTime = performance.now();
-
+export function useFurnaceSim() {
   function loop(now) {
     if (!running.value) return;
 
@@ -273,6 +272,10 @@ export function useFurnaceSim(initialFuels = []) {
 
   onUnmounted(stop);
 
+  function setInitialFuelTypes(fuelTypes) {
+    furnace.fuels = fuelTypes.map(type => ({ type, mass: 0 }));
+  }
+
   return {
     furnace,
     running,
@@ -280,5 +283,6 @@ export function useFurnaceSim(initialFuels = []) {
     stop,
     addFuel,
     ignite,
+    setInitialFuelTypes,
   };
 }

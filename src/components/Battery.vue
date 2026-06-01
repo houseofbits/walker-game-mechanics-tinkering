@@ -1,30 +1,35 @@
 <template>
   <div class="window-ui">
-    <div class="title-bar">Battery (1x)</div>
+    <div class="title-bar">Battery
+
+      <div class="title-bar-button" @click="emit('remove')">x</div>
+    </div>
     <div class="window-content">
-            Capacity: {{ batteryState.state.capacity.toFixed(1) }} Ah
+      Capacity: {{ batteryState.state.capacity.toFixed(1) }} Ah
 
-            <div class="temp-bar-wrap">
-                <div class="temp-bar-fill" :style="{ width: percentage + '%', background: 'green' }" />
-                <span class="temp-label">{{ batteryState.state.level.toFixed(0) }}% </span>
-            </div>
+      <div class="temp-bar-wrap">
+        <div class="temp-bar-fill" :style="{ width: percentage + '%', background: 'green' }" />
+        <span class="temp-label">{{ percentage.toFixed(0) }}% </span>
+      </div>
 
-            <button v-if="!batteryState.state.charging" class="btn-red" @click="charge()">Charge</button>
-            <button v-else @click="batteryState.chargeOff()">Stop Charge</button>
+      <button v-if="!batteryState.state.charging" class="btn-red" @click="charge()">Charge</button>
+      <button v-else @click="batteryState.chargeOff()">Stop Charge</button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">    
+<script setup lang="ts">
 import { useBatteryState } from '@/composables/useBatteryState';
 import { computed } from "vue";
+
+const emit = defineEmits(['remove']);
 
 const batteryState = useBatteryState();
 
 const percentage = computed(() => (batteryState.state.level / batteryState.state.capacity) * 100);
 
 function charge() {
-    batteryState.charge(true);
+  batteryState.charge(true);
 }
 
 </script>
