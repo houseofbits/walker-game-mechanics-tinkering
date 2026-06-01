@@ -1,17 +1,18 @@
 import { reactive } from "vue";
 import { useBatteryState } from "./useBatteryState";
 
-const lightsState = reactive({
-    isOn: false,
-    ampsDrain: 10, // Amps consumed per second when on
-    isLit: false, // Whether light is currently visually lit (flickers when low battery)
-});
-
-let drainInterval = null;
-let lastFlickerTime = 0;
-const batteryState = useBatteryState();
-
 export function useLightsState() {
+    const lightsState = reactive({
+        isOn: false,
+        ampsDrain: 5, // Amps consumed per second when on
+        isLit: false, // Whether light is currently visually lit (flickers when low battery)
+        name: "Light", // Name of the light source
+    });
+
+    let drainInterval = null;
+    let lastFlickerTime = 0;
+    const batteryState = useBatteryState();
+
     function toggle() {
         lightsState.isOn = !lightsState.isOn;
         if (lightsState.isOn && batteryState.state.level > 0) {

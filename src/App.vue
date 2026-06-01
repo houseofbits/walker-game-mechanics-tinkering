@@ -34,11 +34,13 @@ import { ref, onMounted } from "vue";
 import FurnaceSim from "./components/FurnaceSim.vue";
 import Battery from "./components/Battery.vue";
 import Lights from "./components/Lights.vue";
+import Hopper from "./components/Hopper.vue";
 
 const componentsList = {
   "Furnace": FurnaceSim,
   "Battery": Battery,
   "Lights": Lights,
+  "Hopper": Hopper,
 };
 
 const componentNames = Object.keys(componentsList);
@@ -89,6 +91,14 @@ onMounted(() => {
 body {
   margin: 0;
   padding: 0;
+}
+
+input {
+  width: auto;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 .stage {

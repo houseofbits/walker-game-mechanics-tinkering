@@ -4,7 +4,7 @@ import { useFurnaceSim } from "./useFurnaceSim";
 const THRESHOLD_TEMP = 250; // Example threshold temperature for charging
 
 const batteryState = reactive({
-    level: 0,
+    level: 500,
     charging: false,
     capacity: 500, // Ah
 }); 

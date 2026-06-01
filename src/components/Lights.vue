@@ -1,6 +1,6 @@
 <template>
   <div class="window-ui">
-    <div class="title-bar">Lights
+    <div class="title-bar">Lights ({{  lightsState.state.name }})
       <div class="title-bar-button" @click="emit('remove')">x</div>
 
     </div>
@@ -16,7 +16,7 @@
 
       <div class="amps-control">
         <div class="amps-input-wrapper">
-          <input type="text"  class="name-input"/>
+          <input v-model="lightsState.state.name" type="text"  class="name-input"/>
           <span class="amps-unit">Name</span>
         </div>
       </div>      
