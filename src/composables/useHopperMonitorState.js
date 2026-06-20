@@ -1,5 +1,4 @@
-import { reactive } from "vue";
-import { useHopperState } from "./useHopperState";
+import { reactive, ref } from "vue";
 import { useBatteryState } from "./useBatteryState";
 
 export function useHopperMonitorState() {
@@ -9,7 +8,7 @@ export function useHopperMonitorState() {
   });
 
   let drainInterval = null;
-  const hopperState = useHopperState();
+  let hopperState = ref(null);
   const batteryState = useBatteryState();
 
   function toggle() {
@@ -47,15 +46,20 @@ export function useHopperMonitorState() {
   }
 
   function toggleHopperFeeding() {
-    hopperState.toggleFeeding();
+    // hopperState.value?.toggleFeeding();
+  }
+
+  function setHopperState(state) {
+    hopperState.value = state;
   }
 
   return {
     state: monitorState,
-    hopperState: hopperState.hopperState,
+    hopperState,
     toggle,
     setAmpsDrain,
     toggleHopperFeeding,
     stopDrain,
+    setHopperState,
   };
 }

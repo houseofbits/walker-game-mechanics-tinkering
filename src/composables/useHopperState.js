@@ -2,6 +2,12 @@ import { reactive, ref, onUnmounted } from "vue";
 import { useFurnaceSim } from "./useFurnaceSim";
 import { useBatteryState } from "./useBatteryState";
 
+export const hopperStates = ref([]);
+
+export function fingHopperStateByName(name) {
+  return hopperStates.value.find((h) => h.name === name);
+}
+
 /**
  * Hopper state composable. Manages fuel storage and automatic feeding to furnace
  * while consuming electricity from the battery.
@@ -11,6 +17,7 @@ export function useHopperState() {
   const batteryState = useBatteryState();
 
   const hopperState = reactive({
+    name: "Hopper",
     mass: 0,
     maxMass: 100, // kg, configurable
     enabled: false, // auto-feed toggle
@@ -28,6 +35,9 @@ export function useHopperState() {
     // Gate: Only feed after furnace is heated above threshold
     hasReachedThreshold: false, // Set to true once furnace temp crosses above threshold
   });
+
+  hopperStates.value.push(hopperState);
+  hopperState.name = `Hopper ${hopperStates.value.length}`; // Unique name for each hopper
 
   let raf;
   let lastTime = performance.now();
@@ -239,7 +249,13 @@ export function useHopperState() {
     if (raf) cancelAnimationFrame(raf);
   }
 
-  onUnmounted(stop);
+  function remove() {
+    stop();
+    const index = hopperStates.value.indexOf(hopperState);
+    if (index !== -1) {
+      hopperStates.value.splice(index, 1);
+    }
+  }
 
   return {
     hopperState,
@@ -254,5 +270,6 @@ export function useHopperState() {
     stop,
     running,
     resetFeedingCycle,
+    remove,
   };
 }

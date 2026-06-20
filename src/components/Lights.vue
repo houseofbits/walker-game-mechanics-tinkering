@@ -1,9 +1,4 @@
 <template>
-  <div class="window-ui">
-    <div class="title-bar">Lights ({{  lightsState.state.name }})
-      <div class="title-bar-button" @click="emit('remove')">x</div>
-
-    </div>
     <div class="window-content">
       <div class="light-display">
         <div class="light-icon" :class="{
@@ -35,13 +30,10 @@
         Turn Off
       </button>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { useLightsState } from '@/composables/useLightsState';
-
-const emit = defineEmits(['remove']);
 
 const lightsState = useLightsState();
 

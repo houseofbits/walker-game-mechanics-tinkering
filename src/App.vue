@@ -93,6 +93,7 @@ onMounted(() => {
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 input {
@@ -153,13 +154,12 @@ input {
 }
 
 .title-bar-button {
-  background: rgba(255, 255, 255, 0.3);
   border: none;
   color: white;
   font-size: 22px;
   width: 24px;
   height: 24px;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -267,5 +267,32 @@ button.btn-red:active {
 .selector-dropdown:focus {
   outline: none;
   box-shadow: 0 0 6px rgba(74, 144, 226, 0.5);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+select, input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 </style>

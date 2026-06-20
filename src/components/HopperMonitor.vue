@@ -4,64 +4,71 @@
       <div class="title-bar-button" @click="emit('remove')">x</div>
     </div>
     <div class="window-content">
-      <div v-if="monitorState.isOn" class="crt-monitor">
-        <div class="monitor-screen">
-          <div class="scan-line"></div>
-          <div class="monitor-content">
-            <div class="monitor-line">{{ hopper.hopperState.enabled ? "STATUS: ENABLED" : "STATUS: DISABLED" }}</div>
-            <div class="monitor-line">FUEL TYPE: {{ hopper.hopperState.fuelType?.name || "NONE" }}</div>
-            <div class="monitor-line">TEMP THRESHOLD: {{ hopper.hopperState.temperatureThreshold }}°C</div>
-            <div class="monitor-line">FUEL LEVEL: {{ hopper.hopperState.mass.toFixed(1) }}/{{ hopper.hopperState.maxMass.toFixed(1) }} KG</div>
-            <div class="monitor-line">CAPACITY: {{ fuelPercentage.toFixed(0) }}%</div>
-            <div class="monitor-line separator">---</div>
-            <div class="monitor-line">MODE: {{ hopper.hopperState.isFeeding ? "FEEDING..." : "IDLE" }}</div>
+      <div class="rows">
+        <label>Hopper:</label>
+        <select @change="setHopperState">
+          <option value="">-- Select Hopper --</option>
+          <option v-for="hopper in hopperStates" :key="hopper.name" :value="hopper.name">
+            {{ hopper.name }}
+          </option>
+        </select>
+      </div>
+
+      <template v-if="!monitor.hopperState.value">
+        <div class="monitor-off-content">
+          ⚠️ No Hopper Selected
+        </div>
+      </template>
+      <template v-else>
+        <div v-if="monitorState.isOn" class="crt-monitor">
+          <div class="monitor-screen">
+            <div class="scan-line"></div>
+            <div class="monitor-content">
+              <div class="monitor-line">{{ hopper.hopperState.value?.enabled ? "STATUS: ENABLED" : "STATUS: DISABLED" }}</div>
+              <div class="monitor-line">FUEL TYPE: {{ hopper.hopperState.value?.fuelType?.name || "NONE" }}</div>
+              <div class="monitor-line">TEMP THRESHOLD: {{ hopper.hopperState.value?.temperatureThreshold }}°C</div>
+              <div class="monitor-line">FUEL LEVEL: {{ hopper.hopperState.value?.mass.toFixed(1) }}/{{
+                hopper.hopperState.value?.maxMass.toFixed(1) }} KG</div>
+              <div class="monitor-line">CAPACITY: {{ fuelPercentage.toFixed(0) }}%</div>
+              <div class="monitor-line separator">---</div>
+              <div class="monitor-line">MODE: {{ hopper.hopperState.value?.isFeeding ? "FEEDING..." : "IDLE" }}</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else class="crt-monitor">
-        <div class="monitor-off-content">
-          📺 MONITOR OFF
+        <div v-else class="crt-monitor">
+          <div class="monitor-off-content">
+            📺 MONITOR OFF
+          </div>
         </div>
-      </div>
 
-      <div class="control-section">
-        <button 
-          v-if="!monitorState.isOn" 
-          class="btn-monitor-on" 
-          @click="hopper.toggle()"
-        >
-          Turn Monitor On
-        </button>
-        <button 
-          v-else 
-          class="btn-monitor-off" 
-          @click="hopper.toggle()"
-        >
-          Turn Monitor Off
-        </button>
+        <div class="control-section">
+          <button v-if="!monitorState.isOn" class="btn-monitor-on" @click="hopper.toggle()">
+            Turn Monitor On
+          </button>
+          <button v-else class="btn-monitor-off" @click="hopper.toggle()">
+            Turn Monitor Off
+          </button>
 
-        <button 
-          @click="hopper.toggleHopperFeeding()" 
-          :class="hopper.hopperState.enabled ? 'btn-feed-on' : 'btn-feed-off'"
-        >
-          {{ hopper.hopperState.enabled ? "Feeding: ON" : "Feeding: OFF" }}
-        </button>
-      </div>
+          <button @click="hopper.toggleHopperFeeding()"
+            :class="hopper.hopperState.value?.enabled ? 'btn-feed-on' : 'btn-feed-off'">
+            {{ hopper.hopperState.value?.enabled ? "Feeding: ON" : "Feeding: OFF" }}
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useHopperMonitorState } from "@/composables/useHopperMonitorState";
-import { useBatteryState } from "@/composables/useBatteryState";
 import { computed, onMounted, onUnmounted } from "vue";
+import { hopperStates, fingHopperStateByName } from "@/composables/useHopperState";
 
 const emit = defineEmits(["remove"]);
 
 const monitor = useHopperMonitorState();
 const monitorState = monitor.state;
 const hopperState = monitor.hopperState;
-const batteryState = useBatteryState();
 
 // Wrap methods for template binding
 const hopper = {
@@ -71,21 +78,26 @@ const hopper = {
 };
 
 const fuelPercentage = computed(() => {
-  if (hopperState.maxMass === 0) return 0;
-  return (hopperState.mass / hopperState.maxMass) * 100;
+  if (hopperState.value?.maxMass === 0) return 0;
+  return (hopperState.value?.mass / hopperState.value?.maxMass) * 100;
 });
 
-const batteryLevel = computed(() => {
-  return (batteryState.state.level / batteryState.state.capacity) * 100;
-});
+function setHopperState(event) {
+  const selectedName = event.target.value;
+  const selectedHopper = fingHopperStateByName(selectedName);
+  if (selectedHopper) {
+    monitor.setHopperState(selectedHopper);
+  } else {
+    monitor.setHopperState(null); 
+  }
+}
 
 onMounted(() => {
-  hopperState.start?.();
+  hopperState.value?.start();
 });
 
 onUnmounted(() => {
   monitor.stopDrain();
-  hopperState.stop?.();
 });
 </script>
 
@@ -118,13 +130,11 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.15) 0px,
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
+  background: repeating-linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.15) 0px,
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px);
   pointer-events: none;
   z-index: 1;
   animation: scanlines 8s linear infinite;
@@ -134,6 +144,7 @@ onUnmounted(() => {
   0% {
     transform: translateY(0);
   }
+
   100% {
     transform: translateY(10px);
   }

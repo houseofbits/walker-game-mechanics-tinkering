@@ -1,7 +1,7 @@
 <template>
   <div class="window-ui">
     <div class="title-bar">
-      Hopper
+      Hopper ({{ hopper.hopperState.name }})
       <div class="title-bar-button" @click="emit('remove')">x</div>
     </div>
     <div class="window-content">
@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <div class="hopper-section">
+      <div class="rows">
         <label>Fuel Type:</label>
         <select v-model="selectedFuelType" @change="updateFuelType" class="fuel-select">
           <option value="">-- Select Fuel --</option>
@@ -29,18 +29,18 @@
       </div>
 
       <div class="hopper-section-columns">
-        <div class="hopper-section">
+        <div class="rows">
           <label>Max Capacity (kg):</label>
           <input v-model.number="maxMassInput" type="number" min="1" @change="updateMaxMass" class="input-field" />
         </div>
 
-        <div class="hopper-section">
+        <div class="rows">
           <label>Temperature Threshold (°C):</label>
           <input v-model.number="thresholdInput" type="number" @change="updateThreshold" class="input-field" />
         </div>
       </div>
 
-      <div class="hopper-section">
+      <div class="rows">
         <label>Fuel: {{ hopper.hopperState.mass.toFixed(1) }} / {{ hopper.hopperState.maxMass.toFixed(1) }} kg</label>
         <div class="temp-bar-wrap">
           <div class="temp-bar-fill" :style="{ width: fuelPercentage + '%', background: 'orange' }" />
@@ -48,11 +48,11 @@
         </div>
       </div>
 
-      <div class="hopper-section">
+      <div class="rows">
         <button @click="addFuel10kg" class="btn-blue">Add 10kg Fuel</button>
       </div>
 
-      <div class="hopper-section">
+      <div class="rows">
         <button @click="hopper.toggleFeeding()" :class="hopper.hopperState.enabled ? 'btn-green' : 'btn-gray'">
           {{ hopper.hopperState.enabled ? "Auto-Feed: ON" : "Auto-Feed: OFF" }}
         </button>
@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { useHopperState } from "@/composables/useHopperState";
 import { useFurnaceSim, FuelType } from "@/composables/useFurnaceSim";
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 
 const emit = defineEmits(["remove"]);
 
@@ -134,6 +134,11 @@ function addFuel10kg() {
 onMounted(() => {
   hopper.start();
 });
+
+onUnmounted(() => {
+  hopper.remove();
+});
+
 </script>
 
 <style scoped>
@@ -152,28 +157,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-}
-
-.fuel-select,
-.input-field {
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 13px;
-  font-family: monospace;
-}
-
-.fuel-select:focus,
-.input-field:focus {
-  outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
 }
 
 .temp-bar-wrap {
