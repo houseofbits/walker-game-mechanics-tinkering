@@ -25,10 +25,17 @@ export default class SelectionController {
         return this.state.selectedNodes;
     }
 
-    applyStartPositions() {
+    snapshotPositions() {
         for (const selectedNode of this.state.selectedNodes) {
             selectedNode.startX = selectedNode.node.x
             selectedNode.startY = selectedNode.node.y
+        }
+    }
+
+    applyDelta(dx, dy) {
+        for (const entry of this.state.selectedNodes) {
+            entry.node.x = entry.startX + dx
+            entry.node.y = entry.startY + dy
         }
     }
 }

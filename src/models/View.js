@@ -18,6 +18,11 @@ export default class View {
         this.viewport = new Viewport()
         this.portRegistry = new PortRegistry()
         this.selection = new SelectionController()
+
+        this._onMove = this.onMove.bind(this)
+        this._onMouseDown = this.onMouseDown.bind(this)
+        this._onMouseUp = this.onMouseUp.bind(this)
+        this._onWheel = this.onWheel.bind(this)
     }
 
     nodeDragStart(node, event) {
@@ -29,7 +34,7 @@ export default class View {
 
         this.dragStartWorld = this.viewport.screenToWorld(event.clientX, event.clientY)
 
-        this.selection.applyStartPositions()
+        this.selection.snapshotPositions()
 
         this.state.isDraggingNode = true;
     }
@@ -52,10 +57,7 @@ export default class View {
             const dx = world.x - this.dragStartWorld.x;
             const dy = world.y - this.dragStartWorld.y;
 
-            for (const selectedNode of this.selection.getSelected()) {
-                selectedNode.node.x = selectedNode.startX + dx;
-                selectedNode.node.y = selectedNode.startY + dy;
-            }
+            this.selection.applyDelta(dx, dy)
         }
 
         this.viewport.applyPan(event.clientX, event.clientY)
@@ -79,18 +81,19 @@ export default class View {
     }
 
     unmount() {
-        this.boardElement.removeEventListener('pointermove', this.onMove)
-        this.boardElement.removeEventListener('pointerup', this.onMouseUp)
-        this.boardElement.removeEventListener('wheel', this.onWheel)
+        this.boardElement.removeEventListener('mousemove', this._onMove)
+        this.boardElement.removeEventListener('mousedown', this._onMouseDown)
+        this.boardElement.removeEventListener('mouseup', this._onMouseUp)
+        this.boardElement.removeEventListener('wheel', this._onWheel)
     }
 
     mount(element) {
         this.boardElement = element
 
-        this.boardElement.addEventListener('mousemove', this.onMove.bind(this))
-        this.boardElement.addEventListener('mousedown', this.onMouseDown.bind(this))
-        this.boardElement.addEventListener('mouseup', this.onMouseUp.bind(this))
-        this.boardElement.addEventListener('wheel', this.onWheel.bind(this), { passive: false })
+        this.boardElement.addEventListener('mousemove', this._onMove)
+        this.boardElement.addEventListener('mousedown', this._onMouseDown)
+        this.boardElement.addEventListener('mouseup', this._onMouseUp)
+        this.boardElement.addEventListener('wheel', this._onWheel, { passive: false })
     }
 
     getSVGPath(connection) {
